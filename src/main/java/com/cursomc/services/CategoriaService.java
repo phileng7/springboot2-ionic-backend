@@ -20,28 +20,29 @@ import com.cursomc.services.exceptions.ObjectNotFoundException;
 public class CategoriaService {
 	
 	@Autowired
-	private CategoriaRepository catRepo;
+	private CategoriaRepository repo;
 
 	public Categoria find(Integer id) {
-		Optional<Categoria> obj = catRepo.findById(id);
+		Optional<Categoria> obj = repo.findById(id);
 		//return obj.orElse(null);
 		return obj.orElseThrow(() -> new ObjectNotFoundException("Objeto não encontrado! Id: " + id + ", Tipo: " + Categoria.class.getName()));
 	}
 	
 	public Categoria insert(Categoria obj) {
 		obj.setId(null); 	//auto-incremento
-		return catRepo.save(obj);
+		return repo.save(obj);
 	}
 	
 	public Categoria update(Categoria obj) { 	
-		find(obj.getId());
-		return catRepo.save(obj);
+		Categoria newObj = find(obj.getId());
+		updateData(newObj, obj);
+		return repo.save(newObj);
 	}
 	
 	public void delete(Integer id) {
 		find(id);
 		try {
-			catRepo.deleteById(id);
+			repo.deleteById(id);
 		} catch (DataIntegrityViolationException e) {
 			//Aqui uma excecao personalizada
 			throw new DataIntegrityException("Não é possível excluir uma categoria que possui produtos");
@@ -49,16 +50,21 @@ public class CategoriaService {
 	}
 	
 	public List<Categoria> findAll() {
-		return catRepo.findAll();
+		return repo.findAll();
 	}
 	
 	public Page<Categoria> findPage (Integer page, Integer linesPerPage, String orderBy, String direction) {
 		PageRequest pageRequest = PageRequest.of(page, linesPerPage, Direction.valueOf(direction), orderBy);
-		return catRepo.findAll(pageRequest);
+		return repo.findAll(pageRequest);
 	}
 	
 	//Converter CategoriaDTO em Categoria
 	public Categoria fromDto(CategoriaDTO catDto) {
 		return new Categoria(catDto.getId(), catDto.getNome());
+	}
+	
+	//Fazer Update com dados do Objeto originais
+	private void updateData(Categoria newObj, Categoria obj) {
+		newObj.setNome(obj.getNome());
 	}
 }
