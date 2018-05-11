@@ -36,8 +36,7 @@ public class UserSS implements UserDetails {
 	
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return null;
+		return authorities;
 	}
 	
 	@Override
@@ -69,5 +68,4 @@ public class UserSS implements UserDetails {
 	public boolean isEnabled() {
 		return true;
 	}
-
 }
